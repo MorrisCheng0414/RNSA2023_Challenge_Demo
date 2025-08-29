@@ -1,14 +1,6 @@
 model
+byol
+supcon
 simsiam
 moco
 barlowtwins
-unimoco_enet
-byol
-supcon_convnext
-supcon
-vicreg
-unimoco_ori
-unimoco_convnext
-tico
-supcon_enet
-unimoco

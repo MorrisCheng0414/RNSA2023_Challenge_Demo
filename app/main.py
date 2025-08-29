@@ -11,7 +11,7 @@ st.markdown("<div style='text-align:center;font-size:48px'>Abdominal Trauma Scan
 st.subheader("Step 1. Select a scan.")
 
 scan_options = get_avail_ids()
-model_options = get_avail_models()
+model_options = get_avail_models() 
 selected_scan = st.selectbox("Please select a scan", scan_options)
 selected_model = st.selectbox("Please select a model", model_options)
 
@@ -23,7 +23,7 @@ if st.button("Start analyze"):
         pretrain, *backbone = selected_model.split("/")
         backbone = "regnety" if len(backbone) == 0 else backbone[0]
         pred = infer(X = X, label = label, 
-                     backbone = backbone, pretrain = pretrain)
+                     backbone = backbone, pretrain = pretrain) 
 
     with st.spinner("Calculating the score for each organ"):
         pred_df, true_df, score_df, avg_score = get_score(pred = pred, true_df = true_df)

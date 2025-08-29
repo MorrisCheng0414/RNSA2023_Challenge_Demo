@@ -27,7 +27,7 @@ def load_weights(pretrain = "byol", fold_id = "1"):
         logging.error(f"Failed to load weights: {filename}")
         raise(e)
     
-    weights = torch.load(cache_path, map_location = torch.device('cpu'))
+    weights = torch.load(cache_path, weights_only = True, map_location = torch.device('cpu'))
     for key in list(weights.keys()):
         if "projector" in key: del weights[key]
     return weights
