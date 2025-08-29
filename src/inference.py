@@ -19,9 +19,6 @@ def infer(X, label,
 
     # Load trained model weights
     weights = load_weights(pretrain = pretrain, fold_id = fold_id)
-    # weights = torch.load("./weight.bin", weights_only = True, map_location = torch.device('cpu'))
-    # for key in list(weights.keys()):
-    #     if "projector" in key: del weights[key]
     model.load_state_dict(weights)
 
     # Inference
@@ -51,22 +48,4 @@ def get_score(pred, true_df):
     return pred_df, true_df, score_df, avg_score
 
 if __name__ == "__main__":
-    # result = infer()
-    # print(result)
-     # Initialize model
-    backbone = "regnety"
-    pretrain = "byol"
-    fold_id = "1"
-    
-    model = MODEL_DICT[backbone]()
-
-    # Load trained model weights
-    weights = load_weights(pretrain = pretrain, fold_id = fold_id)
-    # weights = torch.load("./weight1.bin", weights_only = True, map_location = torch.device('cpu'))
-    # print(weights.keys())
-    # for key in list(weights.keys()):
-    #     if "projector" in key: del weights[key]
-    model.load_state_dict(weights)
-    print("Successfully load model weights!")
-    # model.extractor.load_state_dict(weights["extractor"])
-    # model.classifier.load_state_dict(weights["classifier"])
+    pass
