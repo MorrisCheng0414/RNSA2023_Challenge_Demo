@@ -2,6 +2,8 @@ import pandas as pd
 import sklearn
 import numpy as np
 import os
+import altair as alt
+import streamlit as st
 from glob import glob
 
 class ParticipantVisibleError(Exception):
@@ -109,3 +111,27 @@ def create_training_solution(y_train):
     # any healthy|injury sample weight = 1|6
     sol_train['any_injury_weight'] = np.where(sol_train['any_injury'] == 1, 6, 1)
     return sol_train
+
+def plot_result(pred_df, true_df):
+    pred_long_df = pred_df.melt(var_name = "Class", value_name = "Probability")
+    pred_long_df["Metric"] = "Prediction"
+
+    true_long_df = true_df.melt(var_name = "Class", value_name = "Probability")
+    true_long_df["Metric"] = "Ground Truth"
+
+    concat_df = pd.concat([pred_long_df, true_long_df])
+
+    chart = alt.Chart(concat_df).mark_bar().encode(
+        y = alt.Y("Class", axis = None),
+        x = alt.X("Probability", axis = None),
+        color = alt.Color("Metric", 
+                          title = "Metric", 
+                          scale = alt.Scale(domain = ["Prediction", "Ground Truth"]),
+                          range = ['#54A24B', '#29B5E8']),
+        row = alt.Row("Metric", title = '', header = alt.Header(titleOrient = "bottom", labelOrient = "bottom")),
+        tooltip = ["Class", "Metric", "Probability"],
+        ).properties(title = "Model Prediction vs. Ground Truth").interactive()
+    
+    st.altair_chart(chart, use_container_width = True)
+    
+

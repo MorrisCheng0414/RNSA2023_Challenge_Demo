@@ -5,6 +5,7 @@ import numpy as np
 import datasets
 import logging
 import huggingface_hub
+import streamlit as st
 from time import time
 from tqdm import tqdm
 from model import MergeModel
@@ -16,7 +17,11 @@ DATASET_REPO_ID = "Morris-is-taken/RSNA_23_SSL_SCL_Demo_Data"
 WEIGHTS_REPO_ID = "Morris-is-taken/RSNA_23_3D_Pretrain_weight"
 IMG_SIZE = 256
 
-def load_weights(pretrain = "byol", fold_id = "1"):
+@st.cache_data
+def load_weights(backbone = "regnety", pretrain = "byol", fold_id = "1"):
+    if backbone != "regnety":
+        pretrain = '_'.join([pretrain, backbone])
+
     filename = f"{pretrain}/fold{fold_id}/weight.bin"
     try:
         cache_path = huggingface_hub.hf_hub_download(repo_id = WEIGHTS_REPO_ID, 
@@ -32,6 +37,7 @@ def load_weights(pretrain = "byol", fold_id = "1"):
         if "projector" in key: del weights[key]
     return weights
 
+@st.cache_data
 def load_label(patient_id = "10007", series_id = "47578"):
     train_df = pd.read_csv("data/train.csv")
     meta_df = pd.read_csv("data/train_series_meta.csv")
@@ -52,6 +58,7 @@ def load_label(patient_id = "10007", series_id = "47578"):
 
     return (bowel, extra, kidney, liver, spleen), true_df
 
+@st.cache_data
 def load_datasets(patient_id = "10007", series_id = "47578"):
     # Load organ ROI videos of the scan
     try:
@@ -92,7 +99,8 @@ def load_datasets(patient_id = "10007", series_id = "47578"):
         raise(e)
         
     return (X, label, true_df) # X: (4, 96, 256, 256), label: (5, ), true_df: (1, 14)
-    
+
+@st.cache_data 
 def get_avail_ids(dest_path = "data/available_ids.csv"):
     if os.path.exists(dest_path):
         df = pd.read_csv(dest_path)
@@ -108,6 +116,7 @@ def get_avail_ids(dest_path = "data/available_ids.csv"):
 
     return df.values.tolist()
 
+@st.cache_data
 def get_avail_models(dest_path = "data/available_models.csv"):
     if os.path.exists(dest_path):
         df = pd.read_csv(dest_path)
