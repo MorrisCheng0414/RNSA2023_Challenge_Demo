@@ -6,10 +6,6 @@ import datasets
 import logging
 import huggingface_hub
 import streamlit as st
-from time import time
-from tqdm import tqdm
-from model import MergeModel
-from PIL import Image
 
 logging.basicConfig(level = logging.INFO, format = "%(asctime)s-%(levelname)s-%(message)s")
 
@@ -17,7 +13,7 @@ DATASET_REPO_ID = "Morris-is-taken/RSNA_23_SSL_SCL_Demo_Data"
 WEIGHTS_REPO_ID = "Morris-is-taken/RSNA_23_3D_Pretrain_weight"
 IMG_SIZE = 256
 
-@st.cache_data
+@st.cache_data(show_spinner = False)
 def load_weights(backbone = "regnety", pretrain = "byol", fold_id = "1"):
     if backbone != "regnety":
         pretrain = '_'.join([pretrain, backbone])
@@ -37,7 +33,7 @@ def load_weights(backbone = "regnety", pretrain = "byol", fold_id = "1"):
         if "projector" in key: del weights[key]
     return weights
 
-@st.cache_data
+@st.cache_data(show_spinner = False)
 def load_label(patient_id = "10007", series_id = "47578"):
     train_df = pd.read_csv("data/train.csv")
     meta_df = pd.read_csv("data/train_series_meta.csv")
@@ -58,7 +54,7 @@ def load_label(patient_id = "10007", series_id = "47578"):
 
     return (bowel, extra, kidney, liver, spleen), true_df
 
-@st.cache_data
+@st.cache_data(show_spinner = False)
 def load_datasets(patient_id = "10007", series_id = "47578"):
     # Load organ ROI videos of the scan
     try:
@@ -71,8 +67,7 @@ def load_datasets(patient_id = "10007", series_id = "47578"):
                                        )
             ds = ds["train"]
             logging.info(f"Converting {organ} dataset to PyTorch tensor...")
-            # ds_numpy = ds.with_format("numpy")
-            # ds_numpy = np.concat([example["image"] for example in tqdm(ds_numpy)])
+            
             ds_numpy = np.array([np.array(example["image"]) / 255.0 for example in ds])
             logging.info(f"Conversion complete!")
 
@@ -100,7 +95,7 @@ def load_datasets(patient_id = "10007", series_id = "47578"):
         
     return (X, label, true_df) # X: (4, 96, 256, 256), label: (5, ), true_df: (1, 14)
 
-@st.cache_data 
+@st.cache_data(show_spinner = False) 
 def get_avail_ids(dest_path = "data/available_ids.csv"):
     if os.path.exists(dest_path):
         df = pd.read_csv(dest_path)
@@ -112,11 +107,12 @@ def get_avail_ids(dest_path = "data/available_ids.csv"):
         ids = set((file.split("/")[0], file.split("/")[1]) for file in files if file.endswith(".png"))
 
         df = pd.DataFrame(data = ids, columns = ["patient_id", "series_id"])
+        df = df.sort_values(by = ["patient_id"])
         df.to_csv(dest_path, index = False)
 
     return df.values.tolist()
 
-@st.cache_data
+@st.cache_data(show_spinner = False)
 def get_avail_models(dest_path = "data/available_models.csv"):
     if os.path.exists(dest_path):
         df = pd.read_csv(dest_path)
@@ -128,19 +124,7 @@ def get_avail_models(dest_path = "data/available_models.csv"):
         ids = set(file.split("/")[0] for file in files if file.endswith(".bin"))
 
         df = pd.DataFrame(data = ids, columns = ["model"])
+        df = df.transform(np.sort)
         df.to_csv(dest_path, index = False)
 
     return df["model"].values.tolist()
-    # return df.values.tolist()
-
-if __name__ == "__main__":
-    start_t = time()
-    # print(get_avail_ids())
-    # print(df.head())
-    # avail_list = pd.read_csv("data/available_ids.csv")
-    # print(avail_list.values.tolist())
-    print(get_avail_models())
-    end_t = time()
-    logging.info(f"Time to load a scan: {end_t - start_t}")
-    
-    

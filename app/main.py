@@ -1,6 +1,5 @@
 import streamlit as st
 import sys
-import torch
 import altair as alt
 import pandas as pd
 sys.path.append("src")
@@ -20,6 +19,10 @@ if "is_analyzed" not in st.session_state:
     st.session_state.is_analyzed = False
 
 def set_analyzed_state():
+    cached_infer.clear()
+    cached_get_score.clear()
+    cached_get_gradcam_visuals.clear()
+
     st.session_state.is_analyzed = True
 
 def plot_result(pred_df, true_df):
