@@ -16,7 +16,7 @@ This project is an interactive [`Streamlit`](https://streamlit.io/) application 
 
 ## Demo video
 
-
+https://github.com/user-attachments/assets/71d3251d-78ee-49f1-8f51-9b404450babf
 
 ## Requirements
 - `altair`
