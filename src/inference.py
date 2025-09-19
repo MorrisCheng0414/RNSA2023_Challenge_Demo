@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import torch
 import torch.nn.functional as F
-import matplotlib.pyplot as plt
 import streamlit as st
 
 from pytorch_grad_cam import GradCAM
@@ -111,21 +110,3 @@ def cached_get_gradcam_visuals(_infer_model, _X):
     """Generates and caches Grad-CAM visualizations."""
     _infer_model.get_gradcam(X = _X)
     return _infer_model.visuals
-
-
-if __name__ == "__main__": 
-    (X, label, true_df) = load_datasets()
-
-    infer_model = InferModel(label = label)
-
-    infer_model.get_gradcam(X = X)
-    visuals = infer_model.visuals
-
-    fig, axs = plt.subplots(6, 16, figsize = (20, 20))
-    for idx, img in enumerate(visuals[1]):
-        ax = axs[idx // 16][idx % 16]
-        ax.imshow(img)
-        ax.axis("off")
-
-    fig.tight_layout()
-    plt.show()
